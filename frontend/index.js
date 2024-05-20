@@ -9,108 +9,15 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   // ❗ Use the variables `mentors` and `learners` to store the data.
   // ❗ Use the await keyword when using axios.
 
-  async function fetchData() {
-    try {
-        // Fetch data from Endpoint A
-        const responseA = await axios.get('http://localhost:3003/api/learners');
-        const learners = responseA.data;
+  let mentors = await axios.get("http://localhost:3003/api/mentors")
+  let learners = await axios.get("http://localhost:3003/api/learners")
 
-        // Fetch data from Endpoint B
-        const responseB = await axios.get('http://localhost:3003/api/mentors');
-        const mentors = responseB.data;
-
-        // Process the data and match mentor IDs with real names
-        const processedLearners = learners.map(learner => {
-            const matchedMentors = learner.mentors.map(mentorId => {
-                const mentor = mentors.find(m => m.id === mentorId);
-                return mentor ? mentor.fullName : 'Unknown Mentor';
-            });
-
-            return {
-                id: learner.id,
-                fullName: learner.fullName,
-                email: learner.email,
-                mentors: matchedMentors
-            };
-        });
-
-        // Call a function to render the learner cards with the processed data
-        renderLearnerCards(processedLearners);
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-
-function renderLearnerCards(learners) {
-    // TASK 3: Render learner cards with mentors
-    const cardsContainer = document.querySelector('.cards');
-
-    learners.forEach(learner => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-
-        const heading = document.createElement('h3');
-        heading.textContent = learner.fullName;
-
-        const email = document.createElement('div');
-        email.textContent = `Email: ${learner.email}`;
-
-        const mentorsHeading = document.createElement('h4');
-        mentorsHeading.textContent = 'Mentors:';
-
-        const mentorsList = document.createElement('ul');
-        learner.mentors.forEach(mentor => {
-            const mentorItem = document.createElement('li');
-            mentorItem.textContent = mentor;
-            mentorsList.appendChild(mentorItem);
-        });
-
-        card.appendChild(heading);
-        card.appendChild(email);
-        card.appendChild(mentorsHeading);
-        card.appendChild(mentorsList);
-
-        cardsContainer.appendChild(card);
-    });
-}
-
-// Call the fetchData function to start fetching data when the script runs
-fetchData();
-
+  let mentorsRes = mentors.data;
+  let learnersRes = learners.data;
 
   // 👆 ==================== TASK 1 END ====================== 👆
 
   // 👇 ==================== TASK 2 START ==================== 👇
-
-  async function fetchData() {
-    try {
-        // Fetch data from Endpoint A
-        const responseA = await axios.get('http://localhost:3003/api/learners');
-        const learners = responseA.data;
-
-        // Fetch data from Endpoint B
-        const responseB = await axios.get('http://localhost:3003/api/mentors');
-        const mentors = responseB.data;
-
-        // Task 2: Combine learners and mentors
-        learners.forEach(learner => {
-            // Map over the mentors array of IDs and replace them with mentor names
-            learner.mentors = learner.mentors.map(mentorId => {
-                const mentor = mentors.find(m => m.id === mentorId);
-                return mentor ? mentor.fullName : 'Unknown Mentor';
-            });
-        });
-
-        // Call a function to render the learner cards with the processed data
-        renderLearnerCards(learners);
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-
-// Call the fetchData function to start fetching data when the script runs
-fetchData();
-
 
   // 🧠 Combine learners and mentors.
   // ❗ At this point the learner objects only have the mentors' IDs.
@@ -124,6 +31,17 @@ fetchData();
   //     "Grace Hopper"
   //   ]`
   // }
+  const formattedData = []
+  learnersRes.forEach(learner => {
+    const result = {
+      ...learner,
+      mentors: learner.mentors.map(mID => {
+        const mentor = mentorsRes.find(mentorObj => mentorObj.id == mID)
+        return mentor.firstName + " " + mentor.lastName 
+      })
+    }
+    formattedData.push(result)
+  })
 
   // 👆 ==================== TASK 2 END ====================== 👆
 
@@ -134,43 +52,8 @@ fetchData();
 
   // 👇 ==================== TASK 3 START ==================== 👇
 
-  for (let learner of learners) { // looping over each learner object
-    for (let learner of learners) {
-      // Create elements for the learner card
-      const card = document.createElement('div');
-      const heading = document.createElement('h3');
-      const email = document.createElement('div');
-      const mentorsHeading = document.createElement('h4');
-      const mentorsList = document.createElement('ul');
-  
-      // Set text content for the elements
-      heading.textContent = learner.fullName;
-      email.textContent = learner.email;
-      mentorsHeading.textContent = 'Mentors:';
-  
-      // Add classes to the elements
-      card.classList.add('card');
-      heading.classList.add('name');
-      email.classList.add('email');
-      mentorsHeading.classList.add('mentors-heading');
-  
-      // Append elements to the card
-      card.appendChild(heading);
-      card.appendChild(email);
-      card.appendChild(mentorsHeading);
-      card.appendChild(mentorsList);
-  
-      // Loop over mentors and create <li> elements for each
-      for (let mentor of learner.mentors) {
-          const mentorItem = document.createElement('li');
-          mentorItem.textContent = mentor;
-          mentorsList.appendChild(mentorItem);
-      }
-  
-      // Append the card to the container (assuming you have a container with class 'cards')
-      document.querySelector('.cards').appendChild(card);
-  }
-  
+  formattedData.forEach(learner => { // looping over each learner object
+
     // 🧠 Flesh out the elements that describe each learner
     // ❗ Give the elements below their (initial) classes, textContent and proper nesting.
     // ❗ Do not change the variable names, as the code that follows depends on those names.
@@ -184,6 +67,22 @@ fetchData();
     const mentorsHeading = document.createElement('h4')
     const mentorsList = document.createElement('ul')
 
+    card.appendChild(heading)
+    card.appendChild(email)
+    card.appendChild(mentorsHeading)
+    card.appendChild(mentorsList)
+    learner.mentors.forEach(mentorName => {
+      const li = document.createElement('li')
+      li.textContent = mentorName
+      mentorsList.appendChild(li)
+    })
+
+    card.classList.add("card")
+    heading.textContent = learner.fullName
+    email.textContent = learner.email
+    mentorsHeading.textContent = "Mentors"
+    mentorsHeading.classList.add('closed')
+  
     // 👆 ==================== TASK 3 END ====================== 👆
 
     // 👆 WORK ONLY ABOVE THIS LINE 👆
@@ -229,15 +128,12 @@ fetchData();
       }
     })
   }
+  )
 
   const footer = document.querySelector('footer')
   const currentYear = new Date().getFullYear()
   footer.textContent = `© BLOOM INSTITUTE OF TECHNOLOGY ${currentYear}`
-}
-
-// ❗ DO NOT CHANGE THIS CODE. WORK ONLY INSIDE TASKS 1, 2, 3
-if (typeof module !== 'undefined' && module.exports) module.exports = { sprintChallenge5 }
-else sprintChallenge5()
+                                                                            }
 
 // ❗ DO NOT CHANGE THIS CODE. WORK ONLY INSIDE TASKS 1, 2, 3
 if (typeof module !== 'undefined' && module.exports) module.exports = { sprintChallenge5 }
